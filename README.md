@@ -130,3 +130,17 @@ The model will be trained using iterative methods, such as `Gradient Descent`, i
 
 #### Random Forest
 The data will be discretized by binning into intervals with equal frequency, so every value of a feature will get equal representation among the rest of the values. I decided that in every run if the algorithm, 100 decision trees will be created, and each division will rely on at most the square root of the total number of features. The splitting criterion will be based on _Gini index_.
+
+## Bayesian and Observational Learning
+
+### Describe and analyze your choice
+The chosen algorithm is Naïve-Bayes, because it is a much simpler algorithm than Bayesian network, as the latter takes in account all of the dependencies between the features, while Naïve-Bayes assumes independency, yet achieving good results in practice. A Bayesian network demands a bigger database, from which it can deduce the dependecies between the features. Since the preprocessed database contains just 378 examples, we'll prefer to use the Naïve-Bayes algorithm, which is capable of handling smaller sized databases. Moreover, since the Bayesian network requires many calculations, by using the Naïve-Bayes we get a simpler algorithm whose train and run time will be much faster.
+
+Nevertheless, Naïve-Bayes performence may suffer if there are correlated feature, and thus we would want to perform dimensionality reduction (e.g by using the `PCA` algorithm), to achieve a data set with lower correlation.
+
+The algorithm calculates the conditional probabilities of each of the features given the classification class, and then, for any new unseen example, calculates the product of the relevant conditional probabilities, given each one of the classes. The class that achieves the highest probability is the final classification of the algorithm.
+
+### Describe and analyze the task using K-NN algorithm
+`K-NN` is a classification algorithm which treats the data as points in a space with a dimension the size of the number of features.
+
+This algorithm requires no training, since each example is being calculated independently of the other examples, but the _k_ nearest examples to it, based on some distance function.

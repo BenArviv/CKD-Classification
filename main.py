@@ -4,7 +4,12 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_curve, roc_auc_score
+from sklearn.decomposition import PCA
+from sklearn.naive_bayes import GaussianNB
+from sklearn.cluster import DBSCAN
+from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve, roc_auc_score, homogeneity_score, completeness_score, v_measure_score, adjusted_rand_score, adjusted_mutual_info_score, silhouette_score
 from scipy.io.arff import loadarff
 import random
 import math
@@ -79,6 +84,15 @@ def detailed_accuracy(Y_test, Y_pred, TPR, FPR, auc): # detailed accuracy
     
     return df
 
+def mean_squared_error(Y_test, Y_pred): # mean squared error
+    length = len(Y_test)
+    sum = 0
+    
+    for i in range(length):
+        sum += (Y_test[i] - Y_pred[i]) ** 2
+    
+    return sum / length
+
 def logistic_regression_model(X, Y, k): # logistic regression model
     accuracy = []
     sum = 0
@@ -114,7 +128,7 @@ def logistic_regression_model(X, Y, k): # logistic regression model
     auc = roc_auc_score(Y_test, Y_pred)
     
     
-    print("Detailed accuracy: \n", detailed_accuracy(Y_test, Y_pred, fpr, tpr, auc))
+    #print("Detailed accuracy: \n", detailed_accuracy(Y_test, Y_pred, fpr, tpr, auc))
     
     
     return logreg, accuracy, coeffs
@@ -184,16 +198,142 @@ def random_forest_model(X, Y, k): # random forest model
     fpr, tpr, thresholds = roc_curve(Y_test, Y_pred)
     auc = roc_auc_score(Y_test, Y_pred)
     
-    print("Detailed accuracy: \n", detailed_accuracy(Y_test, Y_pred, fpr, tpr, auc))
+    #print("Detailed accuracy: \n", detailed_accuracy(Y_test, Y_pred, fpr, tpr, auc))
     
     return randfor, accuracy, importance
+    
+def naive_bayes_model(X, Y, k): # naive bayes model
+    accuracy = []
+    sum = 0
+    nb = GaussianNB()
+    
+    for i in range(k): # k-fold cross validation
+        X_train, Y_train, indices = bootstrap_sample(X, Y, int(len(X) * 0.8)) # bootstrap sampling for 80% of the data
+        X_test, Y_test = [], []
+        score = 0 # accuracy score
         
+        for j in range(len(indices)):
+            if indices[j] == 0:
+                X_test.append(X[j])
+                Y_test.append(Y[j])
         
+        nb.fit(X_train, Y_train)
+        Y_pred = nb.predict(X_test)
+        length = len(Y_pred)
+        
+        for j in range(length):
+            if Y_pred[j] == Y_test[j]: # if prediction is correct
+                score += 1
+        
+        accuracy.append(score / length)
+        
+    for i in range(len(accuracy)):
+        sum += accuracy[i]
+    accuracy = sum / len(accuracy) # average accuracy
+    nb.fit(X, Y) # fit the model with all the data
+    
+    fpr, tpr, thresholds = roc_curve(Y_test, Y_pred)
+    auc = roc_auc_score(Y_test, Y_pred)
+    
+    print("Detailed accuracy: \n", detailed_accuracy(Y_test, Y_pred, fpr, tpr, auc))
+    
+    return nb, accuracy  
+
+def dbscan_model(X, Y, k): # DBSCAN model  
+    accuracy = []
+    sum = 0
+    dbscan = DBSCAN(eps=0.5, min_samples=6)
+    
+    for i in range(k): # k-fold cross validation
+        X_train, Y_train, indices = bootstrap_sample(X, Y, int(len(X) * 0.8)) # bootstrap sampling for 80% of the data
+        X_test, Y_test = [], []
+        score = 0 # accuracy score
+        
+        for j in range(len(indices)):
+            if indices[j] == 0:
+                X_test.append(X[j])
+                Y_test.append(Y[j])
+    
+        dbscan.fit(X_train, Y_train)
+        Y_pred = dbscan.fit_predict(X_test)
+        length = len(Y_pred)
+        
+        for j in range(length):
+            if Y_pred[j] == Y_test[j]: # if prediction is correct
+                score += 1
+        
+        accuracy.append(score / length)
+        
+    for i in range(len(accuracy)):
+        sum += accuracy[i]
+    accuracy = sum / len(accuracy) # average accuracy
+    dbscan.fit(X, Y) # fit the model with all the data
+    labels = dbscan.labels_ # cluster labels
+    
+    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0) # number of clusters
+    n_noise_ = list(labels).count(-1) # number of noise points
+    homogenity = homogeneity_score(Y, labels) # homogenity score
+    completeness = completeness_score(Y, labels) # completeness score
+    v_measure = v_measure_score(Y, labels) # v-measure score
+    adjusted_rand = adjusted_rand_score(Y, labels) # adjusted rand score
+    adjusted_mutual_info = adjusted_mutual_info_score(Y, labels) # adjusted mutual info score
+    silhouette = silhouette_score(X, labels) # silhouette score
+    
+    print('Estimated number of clusters: %d' % n_clusters_)
+    print('Estimated number of noise points: %d' % n_noise_)
+    print('Homogenity: %0.3f' % homogenity)
+    print('Completeness: %0.3f' % completeness)
+    print('V-measure: %0.3f' % v_measure)
+    print('Adjusted Rand Index: %0.3f' % adjusted_rand)
+    print('Adjusted Mutual Information: %0.3f' % adjusted_mutual_info)
+    print('Silhouette Coefficient: %0.3f' % silhouette)
+    
+    return dbscan, accuracy
+        
+def neural_network_model(X, Y, k): # neural network model
+    accuracy = []
+    sum = 0
+    nn = MLPClassifier(activation='relu', solver='sgd', alpha=1e-5, hidden_layer_sizes=(10, 10), random_state=1, max_iter=1000, early_stopping=False)
+    
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2) # 80% training, 20% testing
+    
+    for i in range(k): # k-fold cross validation
+        X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.2) # 80% training, 20% validation   
+        
+        nn.fit(X_train, Y_train)
+        Y_pred = nn.predict(X_test)
+        
+        score = nn.score(X_val, Y_val)
+        accuracy.append(score)
+        
+    for i in range(len(accuracy)):
+        sum += accuracy[i]
+    accuracy = sum / len(accuracy) # average accuracy
+    
+    nn.fit(X_train, Y_train)
+    plt.plot(nn.loss_curve_)
+    plt.title('Neural Network Training Set Loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['Training'], loc='upper left')
+    plt.show()    
+    
+    Y_pred = nn.predict(X_test)
+    fpr, tpr, thresholds = roc_curve(Y_test, Y_pred)
+    auc = roc_auc_score(Y_test, Y_pred)
+    
+    print("Detailed accuracy: \n", detailed_accuracy(Y_test, Y_pred, fpr, tpr, auc))
+    print("Mean squared error: %.2f" % mean_squared_error(Y_test, Y_pred))
+    
+    nn.fit(X, Y) # fit the model with all the data
+    return nn, accuracy
+
 pd.options.mode.chained_assignment = None  # default='warn'
 data = loadarff('chronic_kidney_disease.arff')
 df = pd.DataFrame(data[0])
 k = 10 # 10-fold cross validation
 columns = df.columns
+    
 
 "data decoding"
 df['sg'] = df['sg'].str.decode('utf-8')
@@ -262,21 +402,21 @@ df_x_dt, df_y_dt = discretize_transform(df.copy(), 'class') # discretized data
 id3_model, id3_accuracy = decision_tree_model(df_x_dt, df_y_dt, 'entropy', k)
 cart_model, cart_accuracy = decision_tree_model(df_x_dt, df_y_dt, 'gini', k)
 
-print("ID3 Accuracy: ", id3_accuracy)
-print("CART Accuracy: ", cart_accuracy)
+#print("ID3 Accuracy: ", id3_accuracy)
+#print("CART Accuracy: ", cart_accuracy)
 
-print("------------------------------------")
+#print("------------------------------------")
 
 logreg_model, logreg_accuracy, logreg_coeff = logistic_regression_model(df_x_lr, df_y_lr, k)
-print("Logistic Regression Accuracy: ", logreg_accuracy)
-print("Logistic Regression Coefficients: ", logreg_coeff)
+#print("Logistic Regression Accuracy: ", logreg_accuracy)
+#print("Logistic Regression Coefficients: ", logreg_coeff)
 
-print("------------------------------------")
+#print("------------------------------------")
 
 randfor_model, randfor_accuracy, randfor_importance = random_forest_model(df_x_dt, df_y_dt, k)
-print("Random Forest Accuracy: ", randfor_accuracy)
+#print("Random Forest Accuracy: ", randfor_accuracy)
 
-
+"""
 feature_names = [f"{col}" for col in columns if col != 'class']
 forest_importances = pd.Series(randfor_importance, index=feature_names)   
 std = np.std([tree.feature_importances_ for tree in randfor_model.estimators_], axis=0)
@@ -287,4 +427,36 @@ ax.set_title("Feature importances using MDI")
 ax.set_ylabel("Mean decrease in impurity")
 fig.tight_layout()
 
-#plt.show()
+plt.show()
+"""
+
+nb_model, nb_accuracy = naive_bayes_model(df_x_dt, df_y_dt, k)
+print("Naive Bayes Accuracy: ", nb_accuracy)
+
+pca = PCA(n_components=2) # PCA
+df_x_pca = pca.fit_transform(df_x_lr) # dimensionality reduction to 2D for visualization
+
+print(df_x_pca.shape)
+print(df_x_lr.shape)
+
+dbs_model, dbs_accuracy = dbscan_model(df_x_pca, df_y_lr, k)
+print("DBSCAN Accuracy: ", dbs_accuracy)
+print("------------------------------------")
+
+# plot the clusters 
+"""
+plt.scatter(df_x_pca[:, 0], df_x_pca[:, 1], c=dbs_model.labels_, cmap='rainbow')
+plt.title('DBSCAN Clusters')
+plt.show()
+"""
+
+nn_model, nn_accuracy = neural_network_model(df_x_lr, df_y_lr, k)
+print("Neural Network Accuracy: ", nn_accuracy)
+
+
+plt.plot(nn_model.loss_curve_)
+plt.title('Neural Network Test Set Loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['Test'], loc='upper left')
+plt.show()

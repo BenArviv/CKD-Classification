@@ -119,3 +119,13 @@ The model uses a logistic function to analyze the conditional probabilities betw
 
 #### Random Forest
 An ensemble algorithm that combines the results obtained by running many decision trees, and returns an optimal classification based on _majority vote_ out of the results of the decision trees. In most cases, the obtained classification is more accurate than that obtained by a single decision tree.
+
+### Describe the steps of the chosen methods
+For both methods I've used _10-fold cross-validation_ as well as _bootstrap_ sampling in order to achieve more accurate predictions. Each method was trained on the same examples, but they've been processed differently for each of the algorithms.
+
+#### Logistic Regression
+The algorithm is looking for a set of weights for which the prediction error would be minimal.
+After cleaning the data, we'll normalize it using the `Min-max` method in order for all the values to be in the interval [0,1], thus there won't be values that influence more than others.
+The model will be trained using iterative methods, such as `Gradient Descent`, in order to find the optimal weights that minimize the in-sample error, that would be defined as the least squares loss (_l2-loss_). In addition, we will use regularization to avoid overfitting.
+
+#### Random Forest

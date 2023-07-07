@@ -63,9 +63,59 @@ Run the chosen classification algorithms on the optimized data, using `Python`.
 Examination of the findings obtained by the classification algorithms, and evaluating them by measures such as degree of accuracy, relevance, simplicity etc., using statistical data analysis.
 After examination, there can be two options: <br>
 1. **The results are satisfactory** <br>
-  In this case, we move forward for the next step - conclusions.<br>
+  In this case, we move forward to the next step - conclusions.<br>
 2. **The results aren't satisfactory** <br>
-  In this case, we repeat the proccess while changing some parts of it (e.g data deletion, discretization, different transformations, different algorithms etc.). We will continue like this until a model is found that satisfies the needs of the test, or until it is decided to stop the process.
+  In this case, we repeat the process while changing some parts of it (e.g data deletion, discretization, different transformations, different algorithms etc.). This action will be repeated until a model is found that satisfies the needs of the test, or until it is decided to stop the process.
 
 ### Conclusions
 Using the optimal model found to predict the presence of CKD in future patients. Depending on the chosen model, we can present it visually using a mathematical formula, an inference rule, a decision tree or the source code of the algorithm.
+
+### A comparative review between the possible alternatives for performing data mining
+
+#### Logistic Regression
+A statistical model used for prediction of a categorical class out of categorical or numerical features, that returns the probability of belonging to a specific class. <br>
+**Advantages** - easy to implement and use, and conveniently presentable. Moreover, the algorithm does not require any prior assumptions about the distribution of the random variables in the feature space, and can handle both numerical and categorical values. <br>
+**Disadvantages** - the model tends to overfit/underfit if the number of examples is big/small compared to the number if features. In addition, the model is not recommended when the features are co-linear.
+
+#### Information Gain based Decision Tree (ID3)
+A supervised learning model for classification tasks, which recuresivly split the data according to the features, with respect to the _information gain_ measure.
+**Constraints** - a discretization task must be done for each continuous feature.
+**Advantages** - easy to implement and use, and conveniently presentable. Moreover, the algorithm can handle noisy data and missing values, by pruning the tree.
+**Disadvantages** - the information gain measure tends to prefer features with larger range of values. In addition, the algorithm might be very expensive, computationally speaking.
+
+#### Gini Index based Decision Tree (CART)
+An algorithm that creates a binary decision tree, which recursively splits the data in binary form according to the features, using the _Gini index_ measure, such that after each division, two subgroups are obtained which are as equal in size as possible.
+**Advantages** - can handle both numerical and categorical values, as well as missing values. In addition, the obtained tree will more compact, in most cases, compared to other decision tree algorithms.
+**Disadvantages** - the Gini index measure tends to prefer features with larger range of values, and the running time is longer, compared to other decision tree algorithms.
+
+#### Random Forest
+A classifier that combines the results of many decision trees in order to recieve optimal results.
+**Advantages** - can handle high dimensional, large data sets, with missing values. It can also reduce the variance of the data, and thus avoid overfitting, by averaging the predictions obtained by the different trees it creates.
+**Disadvantages** - a slow algorithm, mainly on large data sets, and it tends to prefer features with higher number of degrees.
+Moreover, this classifier isn't as conveniently presentable as a single decision tree.
+
+### Describe The Stages of Data Preperation
+
+#### Handling missing values
+Since there are 24 features in the data set, if for some example more than third of all of the features (8) is missing, this example will be deleted.
+Otherwise, fill the missing values with the **mean** (for numerical values) or with the **mode** (for categorical values).
+
+#### Data convertions
+Convert all of the categorical values to nominal variables according to their value (e.g _yes_ will recieve the value _1_ etc.), and convert those values to be of type `float` (real numbers). <br>
+Apply transofmations according to the chosen classification algorithm: <br>
+For the logistic regression algorithm, normalize the nominal data using `min-max` method, so that the new range will be [0,1]. <br>
+However, for the random forest algorithm, discretize the numerical values by splitting the data to intervals with equal frequency, so that each values group will get equal representation. <br>
+In addition, we'll assume that the data entry process contained errors such as adding an extra '0', or forgetting decimal point etc., therefore for features with high standard deviation or unusual minimal/maximal values with respect to the mean, we'll fix their values manually. 
+
+## Classification
+
+### Choose two methods for classifing the data
+The chosen methods are `Logistic Regression` and `Random Forest`.
+
+#### Logistic Regression
+A classification algorithm that predicts the probabilities of belonging to some prediction class, in our case - existence of chronic kidney disease. <br>
+The algorithm analyzes the connections between one or more independent variables (we'll assume that the features are indeed independent). <br>
+The model uses a logistic function to analyze the conditional probabilities between the features, which means it calculates the probability of belonging to a class given the values of some feature.
+
+#### Random Forest
+An ensemble algorithm that combines the results obtained by running many decision trees, and returns an optimal classification based on _majority vote_ out of the results of the decision trees. In most cases, the obtained classification is more accurate than that obtained by a single decision tree.

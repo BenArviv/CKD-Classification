@@ -129,3 +129,4 @@ After cleaning the data, we'll normalize it using the `Min-max` method in order 
 The model will be trained using iterative methods, such as `Gradient Descent`, in order to find the optimal weights that minimize the in-sample error, that would be defined as the least squares loss (_l2-loss_). In addition, we will use regularization to avoid overfitting.
 
 #### Random Forest
+The data will be discretized by binning into intervals with equal frequency, so every value of a feature will get equal representation among the rest of the values. I decided that in every run if the algorithm, 100 decision trees will be created, and each division will rely on at most the square root of the total number of features. The splitting criterion will be based on _Gini index_.

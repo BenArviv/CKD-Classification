@@ -74,24 +74,24 @@ Using the optimal model found to predict the presence of CKD in future patients.
 
 #### Logistic Regression
 A statistical model used for prediction of a categorical class out of categorical or numerical features, that returns the probability of belonging to a specific class. <br>
-**Advantages** - easy to implement and use, and conveniently presentable. Moreover, the algorithm does not require any prior assumptions about the distribution of the random variables in the feature space, and can handle both numerical and categorical values. <br>
-**Disadvantages** - the model tends to overfit/underfit if the number of examples is big/small compared to the number if features. In addition, the model is not recommended when the features are co-linear.
+- **Advantages** - easy to implement and use, and conveniently presentable. Moreover, the algorithm does not require any prior assumptions about the distribution of the random variables in the feature space, and can handle both numerical and categorical values. <br>
+- **Disadvantages** - the model tends to overfit/underfit if the number of examples is big/small compared to the number if features. In addition, the model is not recommended when the features are co-linear.
 
 #### Information Gain based Decision Tree (ID3)
 A supervised learning model for classification tasks, which recuresivly split the data according to the features, with respect to the _information gain_ measure.
 **Constraints** - a discretization task must be done for each continuous feature.
-**Advantages** - easy to implement and use, and conveniently presentable. Moreover, the algorithm can handle noisy data and missing values, by pruning the tree.
-**Disadvantages** - the information gain measure tends to prefer features with larger range of values. In addition, the algorithm might be very expensive, computationally speaking.
+- **Advantages** - easy to implement and use, and conveniently presentable. Moreover, the algorithm can handle noisy data and missing values, by pruning the tree.
+- **Disadvantages** - the information gain measure tends to prefer features with larger range of values. In addition, the algorithm might be very expensive, computationally speaking.
 
 #### Gini Index based Decision Tree (CART)
 An algorithm that creates a binary decision tree, which recursively splits the data in binary form according to the features, using the _Gini index_ measure, such that after each division, two subgroups are obtained which are as equal in size as possible.
-**Advantages** - can handle both numerical and categorical values, as well as missing values. In addition, the obtained tree will more compact, in most cases, compared to other decision tree algorithms.
-**Disadvantages** - the Gini index measure tends to prefer features with larger range of values, and the running time is longer, compared to other decision tree algorithms.
+- **Advantages** - can handle both numerical and categorical values, as well as missing values. In addition, the obtained tree will more compact, in most cases, compared to other decision tree algorithms.
+- **Disadvantages** - the Gini index measure tends to prefer features with larger range of values, and the running time is longer, compared to other decision tree algorithms.
 
 #### Random Forest
 A classifier that combines the results of many decision trees in order to recieve optimal results.
-**Advantages** - can handle high dimensional, large data sets, with missing values. It can also reduce the variance of the data, and thus avoid overfitting, by averaging the predictions obtained by the different trees it creates.
-**Disadvantages** - a slow algorithm, mainly on large data sets, and it tends to prefer features with higher number of degrees.
+- **Advantages** - can handle high dimensional, large data sets, with missing values. It can also reduce the variance of the data, and thus avoid overfitting, by averaging the predictions obtained by the different trees it creates.
+- **Disadvantages** - a slow algorithm, mainly on large data sets, and it tends to prefer features with higher number of degrees.
 Moreover, this classifier isn't as conveniently presentable as a single decision tree.
 
 ### Describe The Stages of Data Preperation
@@ -143,4 +143,33 @@ The algorithm calculates the conditional probabilities of each of the features g
 ### Describe and analyze the task using K-NN algorithm
 `K-NN` is a classification algorithm which treats the data as points in a space with a dimension the size of the number of features.
 
-This algorithm requires no training, since each example is being calculated independently of the other examples, but the _k_ nearest examples to it, based on some distance function.
+This algorithm requires no training, since each example is being calculated independently of the other examples, but the _k_ nearest examples to it, based on some distance function. Therefore the algorithm is simple to implement, and efficient in terms of time. In order to implement it, all that is needed is to calculate the distances between all of the points, and then search the nearest neighbors and classify the new example according to them.
+
+Since it requires those calculations, we can infer that for larger databases or a high number of features, it won't be as effective, because for each new classification it calculates the distance from all of the points. Furthermore, the values of each of the features need to be normalized, so that the algorithm will not be biased in favor of features with higher values.
+
+In order to classify a new example, the algorithm calculates the distance of the new point and all of the other points in the database, and chooses the _k_ closest points. After that, the classification is immediate and carried out by choosing the majority vote between all of the neighbors.
+
+### Choose one method and explain your choice
+The chosen algorithm is `Naïve-Bayes`, because generally, it will be faster to train and classify than `KNN`, since it calculates the probabilities under the independency assumption, unlike KNN that requires saving and calculating the distances of all the examples for the classification task. Furthermore, the independency assumption simplifies the model, since it refers to a smaller set of hypotheses, that contains only those in which the features are independent, unlike KNN that doesn't assume any simplifying assumptions. In addition, Naïve-Bayes algorithm is simpler to interpret than KNN, since the decisions that the model makes are based on just conditional probabilities between each feature and class, therefore its is clear how a result is obtained. In contrast, KNN requires calculating distance and the classifies according to the majority vote, therefore the classification task is less intuitive to understand.
+
+### Run and report the results of the algorithm
+I used `Python` to run the algorithm.
+Similar to the classification performed using the previous algorithms, I applied _k-fold cross-validation_ with _k=10_. In every iteration, we perform bootstrap sampling to achieve the training set, while the rest will be the test set.
+
+## Cluster Analysis
+
+### Define quality measurements for clusters
+In order to evaluate the quality of a cluster created by a cluster analysis algorithm, we'll use the next measurements:
+- **Distance within the cluster** - we want all the elements in a cluster to be as similar as possible. We calculate the sum of squared distances between each pair of points in the cluster, such that this sum will be minimal.
+- **Distance between the clusters** - we want each cluster to be as different as possible compared to other clusters. We do the same calculation as before, aiming the sum to be maximal.
+- **Homogenity** - we want each cluster to contain elements that belong to the same class.
+- **Completeness** - we want examples that are classified to the same class, to belong to the same cluster.
+- **V-measure** - the harmonic mean between the homogenity and the completeness, which describes the trade-off between those two.
+- **ARI measurement** - checks the similarity between actual and predicted classifications, and the degree of randomness in classifying new examples.
+- **AMI measurement** - checks the mutual information between the actual and predicted classifications, similar to _ARI measurement_.
+- **Silhouette** - checks the degree to which an example matches the cluster to which it belongs according to the distance from points within the cluster and points in near clusters.
+
+### Choose one method for cluster analysis
+The chosen algorithm is `DBScan`.
+It is a density-based clustering algorithm that run under the assuumption that clusters are areas with high density, that are separated by areas with lower density. Since it recognizes clusters according to density, rather than distance, it is able to identify clusters with arbitrary shape, which isn't necessarily elliptical. In addition, it makes no assumptions about the distribution of the data.
+This is a robust algorithm, and it is not sensitive to outliers or noise, but on the other hand, it is computationally expensive, as it goes through all of the points and calculates distances between them, for every _core point_. Since our database doesn't contain a large amount of observations, we can neglect the computation cost of the algorithm, and in return, to achieve more acccurate clusters.

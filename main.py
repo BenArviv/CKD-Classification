@@ -127,10 +127,6 @@ def logistic_regression_model(X, Y, k): # logistic regression model
     fpr, tpr, thresholds = roc_curve(Y_test, Y_pred)
     auc = roc_auc_score(Y_test, Y_pred)
     
-    
-    #print("Detailed accuracy: \n", detailed_accuracy(Y_test, Y_pred, fpr, tpr, auc))
-    
-    
     return logreg, accuracy, coeffs
 
 def decision_tree_model(X, Y, crit, k): # decision tree model
@@ -197,8 +193,6 @@ def random_forest_model(X, Y, k): # random forest model
     importance = randfor.feature_importances_
     fpr, tpr, thresholds = roc_curve(Y_test, Y_pred)
     auc = roc_auc_score(Y_test, Y_pred)
-    
-    #print("Detailed accuracy: \n", detailed_accuracy(Y_test, Y_pred, fpr, tpr, auc))
     
     return randfor, accuracy, importance
     

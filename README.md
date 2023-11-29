@@ -207,9 +207,7 @@ $H_p (q) = -1/N \cdot \sum_{n=1}^N (y_n \cdot log (p(y_n)) + (1-y_n) \cdot log (
 where _y_ is the actual class, and _p(y)_ is the probability of predicting the n'th point, out of N points.
 
 ### Define the optimization parameters
-The optimization parameters are the batch's size, learning rate, regularization parameters and optimization algorithm.
-As mentioned, we choose the algorithm to be `SGD`, where each bach will be of size 100. The regularization parameter will be left as _α=0.0001_, and the learning rate will be _l=0.001_, according to the default values in `SKLearn` library.
+The optimization parameters include the batch size, learning rate, regularization parameters, and optimization algorithm. As previously stated, we've chosen `SGD` as the optimization algorithm, with each batch being of size 100. The regularization parameter will remain at $α=0.0001$, and the learning rate will be $l=0.001$, in line with the default values in the `SKLearn` library.
 
 ### Run and report the results of the algorithm
-I used `Python` to run the network.
-First, we divide the dataset into a training set (80%) and a test set (20%) and perform _k-fold cross-validation_, such that in each fold we divide the training set to a training set (80%) and a validation set (20%), so that we can measure the classifier's accuracy.
+I utilized Python to run the network. Initially, we split the dataset into a training set ($80%$) and a test set ($20%$). We then perform _k-fold cross-validation_, where in each fold we further divide the training set into a training set ($80%$) and a validation set ($20%$). This allows us to measure the classifier's accuracy.
